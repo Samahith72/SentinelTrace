@@ -3,7 +3,8 @@ package com.sentineltrace.project.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sentineltrace.project.entity.Project;
+import com.sentineltrace.project.dto.request.ProjectRequestDTO;
+import com.sentineltrace.project.dto.response.ProjectResponseDTO;
 import com.sentineltrace.project.service.ProjectService;
 
 import jakarta.validation.Valid;
@@ -32,26 +33,26 @@ public class ProjectController {
     }
 
     @PostMapping()
-    public ResponseEntity<Project> createProject( @Valid  @RequestBody Project project){
-        Project createdProject = projectService.createdProject(project);
+    public ResponseEntity<ProjectResponseDTO> createProject( @Valid  @RequestBody ProjectRequestDTO project){
+        ProjectResponseDTO createdProject = projectService.createdProject(project);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProject);
     }
 
     @GetMapping()
-    public ResponseEntity<List<Project>> getAllProject(){
-        List<Project> allProject = projectService.getAllProjects();
+    public ResponseEntity<List<ProjectResponseDTO>> getAllProject(){
+        List<ProjectResponseDTO> allProject = projectService.getAllProjects();
         return ResponseEntity.ok(allProject);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Project> getProjectById(@PathVariable Long id){
-       return projectService.getProjectById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<ProjectResponseDTO> getProjectById(@PathVariable Long id){
+        return projectService.getProjectById(id).map(ResponseEntity::ok).orElseGet( ()-> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteProjectById(@PathVariable Long id){
         boolean isDeleted = projectService.deleteProjectById(id);
-        if(isDeleted == false){
+        if(!isDeleted){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project doesn't exist");
         }
 
@@ -59,13 +60,8 @@ public class ProjectController {
     }
 
     @PutMapping ("/{id}")
-    public ResponseEntity<String> updateProject(@PathVariable Long id,@Valid  @RequestBody Project project){
-        boolean updateProject = projectService.updateProject(id, project);
-        if(!updateProject){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project with id: "+ id +" doesn't exist");
-        }
-
-        return ResponseEntity.status(HttpStatus.OK).body("Project with id: "+ id +" updated successfully!");
+    public ResponseEntity<ProjectResponseDTO> updateProject(@PathVariable Long id,@Valid  @RequestBody ProjectRequestDTO projectRequestDTO){
+        return projectService.updateProject(id, projectRequestDTO).map(ResponseEntity::ok).orElseGet( ()-> ResponseEntity.notFound().build());
     }
     
     

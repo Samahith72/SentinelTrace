@@ -6,28 +6,35 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.sentineltrace.project.dto.request.ProjectRequestDTO;
+import com.sentineltrace.project.dto.response.ProjectResponseDTO;
 import com.sentineltrace.project.entity.Project;
+import com.sentineltrace.project.mapper.ProjectMapper;
 import com.sentineltrace.project.repository.ProjectRepository;
 
 @Service 
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
+    private  final ProjectMapper projectMapper;
 
-    public ProjectService(ProjectRepository projectRepository){
+    public ProjectService(ProjectRepository projectRepository, ProjectMapper projectMapper){
         this.projectRepository = projectRepository;
+        this.projectMapper = projectMapper;
     }
 
-    public Project createdProject(Project projectReq){
-        return projectRepository.save(projectReq);
+    public ProjectResponseDTO createdProject(ProjectRequestDTO projectReq){
+        Project project = projectMapper.toEntity(projectReq);
+        Project savedProject = projectRepository.save(project);
+        return projectMapper.toResponseDTO(savedProject);
     }
 
-    public List<Project> getAllProjects(){
-        return projectRepository.findAll();
+    public List<ProjectResponseDTO> getAllProjects(){
+        return projectRepository.findAll().stream().map(projectMapper::toResponseDTO).toList();
     }
 
-    public Optional<Project> getProjectById(Long id){
-        return projectRepository.findById(id);
+    public Optional<ProjectResponseDTO> getProjectById(Long id){
+        return projectRepository.findById(id).map(projectMapper::toResponseDTO);
     }
 
     public boolean deleteProjectById(Long id){
@@ -39,19 +46,21 @@ public class ProjectService {
         return true;
     }
 
-    public boolean updateProject(Long id, Project updatingProject){
-        Optional<Project> project = projectRepository.findById(id);
-        if(project.isEmpty()){
-            return false;
+    public Optional<ProjectResponseDTO> updateProject(Long id, ProjectRequestDTO updatingProject){
+        Optional<Project> existingProject = projectRepository.findById(id);
+        if(existingProject.isEmpty()){
+            return Optional.empty();
         }
 
-        Project existiProject = project.get();
-        existiProject.setName(updatingProject.getName());
-        existiProject.setDescription(updatingProject.getDescription());
-        existiProject.setLanguage(updatingProject.getLanguage());
-        existiProject.setRepositoryUrl(updatingProject.getRepositoryUrl());
-        projectRepository.save(existiProject);
-        return true;
+        Project project = existingProject.get();
+        project.setName(updatingProject.getName());
+        project.setDescription(updatingProject.getDescription());
+        project.setLanguage(updatingProject.getLanguage());
+        project.setRepositoryUrl(updatingProject.getRepositoryUrl());
+
+
+        Project savedProject = projectRepository.save(project);
+        return Optional.of(projectMapper.toResponseDTO(savedProject));
     }
 
 }
