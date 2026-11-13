@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.sentineltrace.common.exception.ResourceNotFoundException;
 import com.sentineltrace.project.dto.request.ProjectRequestDTO;
 import com.sentineltrace.project.dto.response.ProjectResponseDTO;
 import com.sentineltrace.project.entity.Project;
@@ -33,34 +34,36 @@ public class ProjectService {
         return projectRepository.findAll().stream().map(projectMapper::toResponseDTO).toList();
     }
 
-    public Optional<ProjectResponseDTO> getProjectById(Long id){
-        return projectRepository.findById(id).map(projectMapper::toResponseDTO);
+    public ProjectResponseDTO getProjectById(Long id){
+         Project project  = projectRepository.findById(id).orElseThrow( ()->new ResourceNotFoundException(
+                "Project not found with Id: "+ id
+         ));
+
+         return projectMapper.toResponseDTO(project);
     }
 
-    public boolean deleteProjectById(Long id){
-        Optional<Project> project = projectRepository.findById(id);
-        if(project.isEmpty()){
-            return false;
-        }
-        projectRepository.delete(project.get());
-        return true;
+    public void deleteProjectById(Long id){
+        projectRepository.findById(id).orElseThrow( ()-> new ResourceNotFoundException(
+            "Project not found with Id: "+ id
+        ));
+        projectRepository.deleteById(id);
+
     }
 
-    public Optional<ProjectResponseDTO> updateProject(Long id, ProjectRequestDTO updatingProject){
-        Optional<Project> existingProject = projectRepository.findById(id);
-        if(existingProject.isEmpty()){
-            return Optional.empty();
-        }
+    public ProjectResponseDTO updateProject(Long id, ProjectRequestDTO updatingProject){
+        Project existingProject = projectRepository.findById(id).orElseThrow( ()-> new ResourceNotFoundException(
+            "Project not found with Id: "+ id
+        ));
 
-        Project project = existingProject.get();
-        project.setName(updatingProject.getName());
-        project.setDescription(updatingProject.getDescription());
-        project.setLanguage(updatingProject.getLanguage());
-        project.setRepositoryUrl(updatingProject.getRepositoryUrl());
+        
+        existingProject.setName(updatingProject.getName());
+        existingProject.setDescription(updatingProject.getDescription());
+        existingProject.setLanguage(updatingProject.getLanguage());
+        existingProject.setRepositoryUrl(updatingProject.getRepositoryUrl());
 
 
-        Project savedProject = projectRepository.save(project);
-        return Optional.of(projectMapper.toResponseDTO(savedProject));
+        Project savedProject = projectRepository.save(existingProject);
+        return projectMapper.toResponseDTO(savedProject);
     }
 
 }
