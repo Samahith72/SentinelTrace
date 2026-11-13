@@ -46,22 +46,18 @@ public class ProjectController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ProjectResponseDTO> getProjectById(@PathVariable Long id){
-        return projectService.getProjectById(id).map(ResponseEntity::ok).orElseGet( ()-> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(projectService.getProjectById(id));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteProjectById(@PathVariable Long id){
-        boolean isDeleted = projectService.deleteProjectById(id);
-        if(!isDeleted){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project doesn't exist");
-        }
-
-        return  ResponseEntity.status(HttpStatus.OK).body("Project with id: "+ id +" Deleted Successfully!");
+    public ResponseEntity<Void> deleteProjectById(@PathVariable Long id){
+        projectService.deleteProjectById(id);
+        return  ResponseEntity.noContent().build();
     }
 
     @PutMapping ("/{id}")
     public ResponseEntity<ProjectResponseDTO> updateProject(@PathVariable Long id,@Valid  @RequestBody ProjectRequestDTO projectRequestDTO){
-        return projectService.updateProject(id, projectRequestDTO).map(ResponseEntity::ok).orElseGet( ()-> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(projectService.updateProject(id, projectRequestDTO));
     }
     
     
