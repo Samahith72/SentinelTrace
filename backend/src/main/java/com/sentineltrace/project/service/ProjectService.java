@@ -2,8 +2,12 @@ package com.sentineltrace.project.service;
 
 
 import java.util.List;
-import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.sentineltrace.common.exception.ResourceNotFoundException;
@@ -12,6 +16,7 @@ import com.sentineltrace.project.dto.response.ProjectResponseDTO;
 import com.sentineltrace.project.entity.Project;
 import com.sentineltrace.project.mapper.ProjectMapper;
 import com.sentineltrace.project.repository.ProjectRepository;
+import com.sentineltrace.project.specification.ProjectSpecification;
 
 @Service 
 public class ProjectService {
@@ -30,8 +35,33 @@ public class ProjectService {
         return projectMapper.toResponseDTO(savedProject);
     }
 
-    public List<ProjectResponseDTO> getAllProjects(){
-        return projectRepository.findAll().stream().map(projectMapper::toResponseDTO).toList();
+    public Page<ProjectResponseDTO> getAllProjects(
+                        int page, 
+                        int size, 
+                        String sortBy, 
+                        String direction,
+                        String name,
+                        String language
+    ){
+
+        List<String> allowedFields = List.of("name", "language", "createdAt");
+
+        if(!allowedFields.contains(sortBy)){
+            throw new IllegalArgumentException("Invalid sorting field: "+ sortBy);
+        }
+
+        if(!direction.equalsIgnoreCase("asc") && !direction.equalsIgnoreCase("desc")){
+            throw new IllegalArgumentException("Invalid sorting direction: "+ direction);
+        }
+
+
+        Sort.Direction sortDirection = Sort.Direction.fromString(direction);
+        Sort sort = Sort.by(sortDirection, sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Specification<Project> specification = ProjectSpecification.filterProjects(name, language);
+        Page<Project> projectPage = projectRepository.findAll(specification,pageable);
+        return projectPage.map(projectMapper::toResponseDTO);
     }
 
     public ProjectResponseDTO getProjectById(Long id){

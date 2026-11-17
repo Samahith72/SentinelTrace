@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 
 @RestControllerAdvice 
 public class GlobalExceptionHandler {
@@ -82,6 +83,30 @@ public class GlobalExceptionHandler {
         );
 
         return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    }
+
+    @ExceptionHandler (ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstrainViolation(
+        ConstraintViolationException exception,
+        HttpServletRequest request
+    ){
+        Map<String, String> errors = exception.getConstraintViolations()
+                                    .stream()
+                                    .collect(Collectors.toMap(
+                                        violation -> violation.getPropertyPath().toString(),
+                                        violation -> violation.getMessage(),
+                                        (existing, replacement) -> existing
+                                    ));
+        
+        ErrorResponse errorResponse = new ErrorResponse(
+            LocalDateTime.now(),
+            HttpStatus.BAD_REQUEST.value() ,
+            HttpStatus.BAD_REQUEST.getReasonPhrase() ,
+            "Pagination Validation failed",
+            request.getRequestURI(),
+             errors);
+
+        return ResponseEntity.badRequest().body(errorResponse);
     }
 
 }
