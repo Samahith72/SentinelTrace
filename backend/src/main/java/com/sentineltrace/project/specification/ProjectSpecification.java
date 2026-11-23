@@ -1,5 +1,7 @@
 package com.sentineltrace.project.specification;
 
+import java.util.Locale;
+
 import org.springframework.data.jpa.domain.Specification;
 
 import com.sentineltrace.project.entity.Project;
@@ -16,7 +18,7 @@ public class ProjectSpecification {
                     predicate,
                     criteriaBuilder.like(
                         criteriaBuilder.lower(root.get("name")),
-                        " %" + name.toLowerCase()+ "%")
+                        "%" + name.toLowerCase()+ "%")
                 );
             }
 
@@ -25,7 +27,7 @@ public class ProjectSpecification {
                     predicate,
                     criteriaBuilder.equal(
                         criteriaBuilder.lower(root.get("language")),
-                        "%" +  language.toLowerCase()+ "%")
+                        language.trim().toLowerCase(Locale.ROOT))
                 );
             }
             return predicate;
