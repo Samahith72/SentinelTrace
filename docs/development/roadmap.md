@@ -24,9 +24,9 @@ This roadmap tracks the development of SentinelTrace as a usable, secure, and de
 - [x] Add the Actuator health endpoint.
 - [x] Configure Flyway and add the initial database migrations.
 - [x] Add `createdAt` and `updatedAt` timestamp handling.
-- [ ] Complete foundation testing and verification.
-- [ ] Align repository documentation with the product v1 plan.
-- [ ] Select and add a project license.
+- [x] Complete foundation testing and verification.
+- [x] Align repository documentation with the product v1 plan.
+- [x] Select and add a project license.
 
 ## Phase 2: Dependency Ingestion
 
