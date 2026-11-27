@@ -1,28 +1,53 @@
 # SentinelTrace
 
-### Software Supply-Chain Risk Intelligence Framework
+### Software Supply-Chain Risk Intelligence Platform
 
-SentinelTrace is a cybersecurity framework designed to analyse software dependencies, identify known vulnerabilities, model dependency relationships, and generate explainable risk assessments.
+SentinelTrace is a cybersecurity product that helps developers understand software dependency risk. It ingests dependency files, identifies known vulnerabilities, maps dependency relationships, and presents explainable risk assessments.
 
-The framework combines vulnerability intelligence with dependency-graph analysis to help developers understand and prioritise software supply-chain risks.
+The goal of v1 is to deliver an end-to-end tool that developers can use to scan a project’s dependencies and understand which components need attention and why.
 
-## Problem Statement
+## The Problem
 
-Modern software applications depend on open-source packages and third-party components. Vulnerabilities in these components can affect applications through both direct and transitive dependencies.
+Applications rely on open-source packages and third-party components. Vulnerabilities in these dependencies can affect an application through both direct and transitive dependencies.
 
-Severity-based vulnerability ranking alone may not adequately represent a component's position within a dependency network or its potential influence on an application.
+A vulnerability severity score alone does not show how a vulnerable component relates to the application or how it is reached through the dependency tree.
 
-SentinelTrace investigates whether dependency-graph analysis and vulnerability intelligence can improve risk prioritisation compared with conventional severity-only ranking.
+SentinelTrace combines vulnerability intelligence, dependency-graph analysis, and explainable risk scoring to help developers prioritize dependency risks.
 
-## Objectives
+## v1 Capabilities
 
-- Ingest software dependency information and supported SBOM formats.
-- Identify known vulnerabilities using external vulnerability intelligence.
-- Represent dependency relationships as a graph.
-- Develop an explainable risk-scoring mechanism.
-- Visualise dependencies, vulnerabilities, and risk assessments.
-- Evaluate the proposed approach against severity-based baselines.
-- Produce reproducible experimental results.
+- Upload CycloneDX JSON SBOM files.
+- Upload npm `package-lock.json` files.
+- Parse package metadata and dependency relationships.
+- Identify known vulnerabilities using the OSV API.
+- Represent direct and transitive dependencies as a graph.
+- Trace dependency paths to vulnerable components.
+- Generate explainable risk assessments.
+- Review scan results through APIs and a React dashboard.
+
+## Planned Workflow
+
+1. Upload a supported dependency file.
+2. Parse its packages, versions, and dependency relationships.
+3. Check package versions against OSV vulnerability data.
+4. Build a dependency graph and identify paths to vulnerable components.
+5. Calculate risk scores and record their contributing factors.
+6. Present vulnerabilities, dependency paths, and explanations through the scan APIs and dashboard.
+
+## Project Status
+
+**Current stage: Spring Boot foundation and repository alignment.**
+
+The backend currently includes:
+
+- Project management CRUD APIs.
+- Request validation and error handling.
+- PostgreSQL persistence.
+- Flyway-managed database migrations.
+- `createdAt` and `updatedAt` timestamp handling.
+- Spring Boot Actuator health monitoring.
+
+The dependency-scanning workflow and dashboard are planned v1 functionality and are not yet represented as completed features.
 
 ## Technology Stack
 
@@ -33,53 +58,72 @@ SentinelTrace investigates whether dependency-graph analysis and vulnerability i
 | API | Spring Web |
 | Database | PostgreSQL |
 | Persistence | Spring Data JPA, Hibernate |
+| Database migrations | Flyway |
+| Health monitoring | Spring Boot Actuator |
 | Vulnerability intelligence | OSV API |
 | Frontend | React |
 | Testing | JUnit, Mockito |
 | Deployment | Docker |
 
-Python may be introduced for research experiments when it provides a clear advantage.
+## Repository Structure
 
-## Architecture
+```text
+SentinelTrace/
+├── backend/              # Spring Boot backend
+├── docs/
+│   └── development/      # Development roadmap
+├── .github/              # Repository templates and workflows
+├── README.md
+├── CONTRIBUTING.md
+└── SECURITY.md
+```
 
-The planned framework consists of six primary modules:
+## Development Setup
 
-1. Project and dependency ingestion
-2. Vulnerability intelligence
-3. Dependency graph analysis
-4. Explainable risk scoring
-5. Security dashboard
-6. Experimental evaluation and reporting
+### Prerequisites
 
-Detailed architecture documentation will be maintained in `docs/architecture/`.
+- Java 21
+- PostgreSQL
+- Git
 
-## Research Question
+### Run the backend
 
-**Can dependency-graph analysis and vulnerability intelligence improve software supply-chain risk prioritisation compared with vulnerability-severity-only ranking?**
+```bash
+cd backend
+./mvnw spring-boot:run
+```
 
-The proposed approach will be evaluated using documented datasets, defined baselines, and reproducible experiments.
+Configure the database connection using the environment variables expected by `application.properties`. Do not commit credentials or private configuration.
 
-## Project Status
+### Run tests
 
-**Current stage:** Repository initialization and development planning.
+```bash
+./mvnw test
+```
 
-The implementation will progress incrementally, beginning with the Spring Boot foundation and project management APIs.
+Database schema changes are managed through Flyway migrations. Hibernate is configured to validate the schema rather than modify it automatically.
 
-## Scope and Limitations
+## Product Scope and Limitations
 
-SentinelTrace initially focuses on known vulnerabilities and dependency-related risk indicators.
+The initial version focuses on known vulnerabilities and dependency-related risk indicators.
 
-A high risk score does not establish that a component is malicious or exploitable. Results depend on the quality of dependency metadata, vulnerability intelligence, and the assumptions used by the scoring method.
+A high risk score does not establish that a component is malicious or exploitable. Results depend on the quality of dependency metadata, the available vulnerability intelligence, and the assumptions used by the scoring method.
 
-The framework will document its methodology, experimental limitations, and evaluation results.
+SentinelTrace is intended to support dependency-risk assessment and prioritization. It does not replace a developer’s security review or guarantee that an application is free of vulnerabilities.
 
 ## Documentation
 
-- Architecture: `docs/architecture/`
-- Research methodology: `docs/research/`
-- Development roadmap: `docs/development/roadmap.md`
-- Experimental documentation: `research/`
+- Development roadmap: `docs/development/Roadmap.md`
+
+## Contributing
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for development principles and commit-message conventions.
+
+## Security
+
+See [`SECURITY.md`](SECURITY.md) for security-reporting guidance. Never commit credentials, tokens, private keys, or confidential findings.
 
 ## License
 
-A project license will be selected before the first public software release.
+A project license has not yet been selected. License details will be added once the licensing decision is made.
+
