@@ -10,8 +10,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -41,6 +41,11 @@ public class Project {
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Column (name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
+
+    
     public Long getId() {
         return id;
     }
@@ -75,9 +80,20 @@ public class Project {
 
     @PrePersist 
     public void initializeCreatedAt() {
+        LocalDateTime now  = LocalDateTime.now();
+
         if(createdAt == null){
-            createdAt = LocalDateTime.now();
+            createdAt = now;
         }
+        updatedAt = now;
+    }
+
+    @PreUpdate 
+    public void updateTimestamp(){
+        updatedAt = LocalDateTime.now();
+    }
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 
     
